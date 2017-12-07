@@ -6,10 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public abstract class User {
 	protected long userId;
 	protected String userName;
 	protected boolean isActive;
