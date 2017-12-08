@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 public class Customer extends User {
-	private PlayList playlist;
+	private Playlist playlist;
 	private List<Song> userHistory;
 	private Plan plan;
 	private List<Song> recommendations;
@@ -39,19 +40,19 @@ public class Customer extends User {
 		// TODO : The code to update the payment
 	}
 
-	public boolean insertCreditCardDetails() {
+	public void insertCreditCardDetails() {
 		// TODO : The code to update the payment
 	}
 	
-	public boolean updateRecommendations() {
+	public void updateRecommendations() {
 		// TODO : The code to update the payment
 	}
 
-	public boolean sharePlaylist(Playlist playlist) {
+	public void sharePlaylist(Playlist playlist) {
 		// TODO : The code to update the payment
 	}
 	
-	public boolean buySong(Song song) {
+	public void buySong(Song song) {
 		// TODO : The code to update the payment
 	}
 	@Override
