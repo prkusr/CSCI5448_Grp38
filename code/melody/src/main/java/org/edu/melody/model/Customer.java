@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class Customer extends User {
 	private PlayList playlist;
 	private List<Song> userHistory;
@@ -46,7 +47,7 @@ public class Customer extends User {
 		// TODO : The code to update the payment
 	}
 
-	public boolean sharePlaylist(Playlist) {
+	public boolean sharePlaylist(Playlist playlist) {
 		// TODO : The code to update the payment
 	}
 	
@@ -55,6 +56,6 @@ public class Customer extends User {
 	}
 	@Override
 	public String toString() {
-		return new StringBuilder("User{").append("loggedIn" + isUserLoggedIn()).toString();
+		return new StringBuilder("Customer{").append("loggedIn" + isUserLoggedIn()).toString();
 	}
 }
