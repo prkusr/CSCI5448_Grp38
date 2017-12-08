@@ -11,7 +11,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class MessageHandler {
 	
-	protected String message, from, subject;
+	protected String message;
+	protected String from;
+	protected String subject;
 
 	public void buildMessage(MessageHandler mes) {
 
