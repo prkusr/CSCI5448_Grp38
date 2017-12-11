@@ -11,9 +11,9 @@ CREATE TABLE Songs (
 
 INSERT INTO Songs(name, format, genre, releaseDate, artistId, cost, songPath)
 values('Faded', 'mp3', 'Electronic', '2016-05-02', 4, 10, '\electornic\faded_alan_walker.mp3'),
-		('Whistle', 'mp3', 'Pop, Hip-hop, rap', '2015-03-02', 4, 8.5, '\electornic\whistle_florida.mp3')
+		('Whistle', 'mp3', 'Pop, Hip-hop, rap', '2015-03-02', 4, 8.5, '\electornic\whistle_florida.mp3');
 
-SELECT * FROM Songs
+SELECT * FROM Songs;
 
 CREATE TABLE SongsPopularity (
 	songId	INT,
