@@ -14,6 +14,7 @@ public abstract class User {
 	protected String userName;
 	protected boolean isActive;
 	protected Date sessionCreatedTime;
+	protected long cellNumber;
 	protected String email;
 	private boolean loggedIn;
 
