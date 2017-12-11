@@ -1,7 +1,5 @@
 package org.edu.melody.dao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Date;
@@ -19,19 +17,18 @@ public class UserDao extends AbstractDAO {
 
 			Statement stmt = null;
 			stmt = getConnection().createStatement();
-			String query = "SELECT * FROM Users WHERE userName = " + String.valueOf(user.getUserName());
-			ResultSet rs = stmt.executeQuery(query);
-			stmt.close();
+			String query = "SELECT * FROM Users WHERE userName = '" + user.getUserName()+"'";
+			ResultSet rs = stmt.executeQuery(query);			
 			if (rs.next()) {
 
 				stmt = getConnection().createStatement();
-				query = "UPDATE Users " + " SET email = " + user.getEmail() + " , cellNo = " + user.getCellNumber();
+				String updateStmt = "UPDATE Users " + " SET email = '" + user.getEmail() + "' , cellNo = " + String.valueOf(user.getCellNumber());
 				if (password.length() > 0)
-					query += " , password = crypt('" + password + "', gen_salt('md5'))";
+					updateStmt += " , password = crypt('" + password + "', gen_salt('md5'))";
 
-				query += " WHERE userName = " + user.getUserName();
+				updateStmt += " WHERE userName = '" + user.getUserName()+"'";
 
-				stmt.executeQuery(query);
+				stmt.executeUpdate(updateStmt);
 
 				logger.debug("Updated user information for: " + rs.getString("userName"));
 			} else {
@@ -44,15 +41,19 @@ public class UserDao extends AbstractDAO {
 					userType = 3;
 				}
 				stmt = getConnection().createStatement();
-				query = "INSERT INTO Users(userName, password, email, cellNo, type)" + "VALUES(" + user.getUserName()
-						+ user.getEmail() + " , " + password + " , " + user.getEmail() + " , " + user.getCellNumber()
+				String insertStmt = "INSERT INTO Users(userName, password, email, cellNo, type)" 
+						+ "VALUES('" + user.getUserName() +"'"
+						+ ", " + "crypt('" + password + "', gen_salt('md5'))"
+						+ ", '" + user.getEmail() + "'" 
+						+ " , " + String.valueOf(user.getCellNumber())
 						+ " , " + String.valueOf(userType) + ")";
-
-				stmt.executeQuery(query);
-				logger.debug("Created new user: " + rs.getString("userName"));
+				logger.debug("Query: " + insertStmt);
+				stmt.execute(insertStmt);
+				logger.debug("Created new user: " + user.getUserName());
 			}
 			stmt.close();
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage());
 		}
 	}

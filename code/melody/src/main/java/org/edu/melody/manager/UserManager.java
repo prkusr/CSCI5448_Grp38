@@ -55,6 +55,8 @@ public class UserManager {
 			sessionId = createSession(userId, type);
 			logger.debug("Created session for user: ["+userName+"].");
 			return sessionId;
+		} else {
+			logger.error("Username/password doesn't match: ["+userName+"].");
 		}
 		
 		return null;
@@ -70,11 +72,15 @@ public class UserManager {
 	}
 	
 	public User getUserInfo(String sessionId){
-		return usersSessionsMap.get(sessionId);
+		if (isUserLoggedIn(sessionId))
+			return usersSessionsMap.get(sessionId);
+		else
+			logger.error("User not loggedIn.");
+			return null;
 	}
 		
 	
-	public void logoutUser(String sessionId){
+	public void signOutUser(String sessionId){
 		
 		User user = usersSessionsMap.get(sessionId);
 		String userName = user.getUserName();

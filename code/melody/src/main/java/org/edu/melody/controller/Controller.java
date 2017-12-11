@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RestController;
  * /artist/login or /customer/login or /admin/login
  */
 public class Controller {
-
-	@RequestMapping(value = "")
+	
+	@RequestMapping(value = "app")
 	public String index() {
 		return "Welcome to melody application";
 	}
 
-	@RequestMapping(value = "/error")
+	@RequestMapping(value = "err")
 	public String error() {
 		return "Welcome to melody application";
 	}
