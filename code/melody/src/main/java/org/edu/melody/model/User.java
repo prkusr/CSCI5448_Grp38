@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -12,6 +13,7 @@ public abstract class User {
 	protected long userId;
 	protected String userName;
 	protected boolean isActive;
+	protected Date sessionCreatedTime;
 	protected String email;
 	private boolean loggedIn;
 
