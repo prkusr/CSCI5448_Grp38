@@ -12,31 +12,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.edu.melody.model.Song;
 
-public class SongDao {
+public class SongDao extends AbstractDAO {
 	private static final Logger logger = LogManager.getLogger(SongDao.class);
-	Connection conn = null;
-	private static final String jdbc = "jdbc:postgresql://localhost:5432/melody";
-	private static final String db = "postgres";
-	private static final String pass = "ooad";
-
-	public SongDao() {
-		if (conn == null) {
-			try {
-				conn = DriverManager.getConnection(jdbc, db, pass);
-			} catch (Exception e) {
-				logger.error(e.getClass().getName() + ": " + e.getMessage());
-			}
-			logger.info("Opened database successfully");
-		}
-	}
+	
 
 	List<Song> getRecentSongs() {
 		try {
-			Class.forName("org.postgresql.Driver");
 			Statement stmt = null;
-			stmt = conn.createStatement();
-			String query = "SELECT * FROM Users WHERE userId = " + String.valueOf("12");
+			stmt = getConnection().createStatement();
+			String query = "SELECT * FROM SONGS WHERE songid = " + String.valueOf("1");
 			ResultSet rs = stmt.executeQuery(query);
+			while(rs.next())  
+				logger.info(rs.getInt(1)+"  "+rs.getString(2)+"  "+rs.getString(3));  
+				
 //			if (rs.next()) {
 //				user.setActive(true);
 //				user.setEmail(rs.getString("email"));
@@ -48,5 +36,18 @@ public class SongDao {
 			e.printStackTrace();
 		}
 		return new ArrayList<Song>();
+	}
+
+
+	public void test() {
+		// TODO Auto-generated method stub
+try {
+			getRecentSongs();
+			//loadUserProfile(user);
+			logger.info("Test DaTABASE song");
+
+		} catch (Exception e) {
+			logger.error("Unble to db", e);
+		}
 	}
 }
