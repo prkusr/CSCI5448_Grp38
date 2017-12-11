@@ -46,25 +46,7 @@ VALUES('My Fav', 2, current_date, 0), ('Latest Songs', 2, current_date-2, 0);
 INSERT INTO PlaylistSongsAssoc
 VALUES(1,1), (2,2);
 
---DROP TABLE Addresses
-CREATE TABLE Addresses (
-    addressId SERIAL PRIMARY KEY,
-    userId INT REFERENCES Users(userId) ON DELETE CASCADE,
-    addressType	INT,				-- Bank/Resiential/Business
-	StreetAddr	varchar(255),
-    AptNo	varchar(30),
-    landmark	varchar(255),
-    city	varchar(255),
-    state	varchar(255),
-    country	varchar(255),
-    zip		INT
-);
 
-INSERT INTO Addresses(addressType, userId, StreetAddr, AptNo, landmark, city, state, country, zip)
-VALUES(2, 2, '2300 Arapahoe Ave', 'Apt 241','','Boulder','CO', 'United States',80302),
-	(1, 3, '2343 Arapahoe Ave', 'Suite 2','','Boulder','CO', 'United States',80306);
-
-SELECT * FROM Addresses;
 
 CREATE TABLE PaymentDetails (
 	paymentId SERIAL PRIMARY KEY,
@@ -79,11 +61,11 @@ CREATE TABLE DirectDepositDetails (
     accountNo	varchar(25),
     routingNo	varchar(25),
     bankName	varchar(255),
-    bankAddrId	INT
+    bankAddr	varchar(255)
 );
 
 INSERT INTO DirectDepositDetails
-VALUES(3,'12874965793','3945628','Wells Fargo',2);
+VALUES(3,'12874965793','3945628','Wells Fargo','1239 20th Street');
 
 CREATE TABLE CreditCardDetails (
     
@@ -94,10 +76,12 @@ CREATE TABLE CreditCardDetails (
     expiryMonth	smallint,
     expiryYear	smallInt,
     nameOnCard	varchar(255),
-    billingAddress	INT
+    billingAddress	varchar(255)
+    
 );
 
 INSERT INTO CreditCardDetails
-values(2, crypt('123423451627485', gen_salt('md5')), crypt('123', gen_salt('md5')), 'Discover', 12, 2022, 'Vibhor Mishra',1);
+values(2, crypt('123423451627485', gen_salt('md5')), crypt('123', gen_salt('md5')), 'Discover', 12, 2022, 'Aditya T','1450 20th Street');
 
 
+INSERT INTO PaymentDetails(userId,amount,paymentDate,comments) values(1,10.99,'2016-05-02','successful')
