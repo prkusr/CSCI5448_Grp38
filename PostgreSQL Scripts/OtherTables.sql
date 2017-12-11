@@ -4,14 +4,15 @@ CREATE TABLE Songs (
     format	varchar(255),
     genre	varchar(255),
     releaseDate	Date,
-    artistId	int,
+    artistId	int NULL,
+    artistName varchar(255) NULL,
     cost	float,
     songPath	text
 );
 
-INSERT INTO Songs(name, format, genre, releaseDate, artistId, cost, songPath)
-values('Faded', 'mp3', 'Electronic', '2016-05-02', 4, 10, '\electornic\faded_alan_walker.mp3'),
-		('Whistle', 'mp3', 'Pop, Hip-hop, rap', '2015-03-02', 4, 8.5, '\electornic\whistle_florida.mp3');
+INSERT INTO Songs(name, format, genre, releaseDate, artistId, artistName, cost, songPath)
+values('Faded', 'mp3', 'Electronic', '2016-05-02', 3, 'Prsr', 10, '\electornic\faded_alan_walker.mp3'),
+		('Whistle', 'mp3', 'Pop, Hip-hop, rap', '2015-03-02', NULL, 'Kailash', 8.5, '\electornic\whistle_florida.mp3');
 
 SELECT * FROM Songs;
 
@@ -28,7 +29,7 @@ VALUES(1, 4.3, 231093), (2, 4.0, 12100);
 CREATE TABLE Playlist (
 	playlistId	SERIAL PRIMARY KEY,
     playlistName varchar(255),
-    userId	INT,
+    userId	INT REFERENCES Users(userId) ON DELETE CASCADE,
     creationDate	Date,
     type INT   -- Shared or not
 );
