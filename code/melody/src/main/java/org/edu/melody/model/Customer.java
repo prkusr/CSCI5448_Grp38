@@ -20,6 +20,13 @@ public class Customer extends User {
 	private List<Song> recommendations;
 	private List<Song> purchase;
 	
+	@Builder
+	public Customer(long userId, String email, boolean isActive){
+		this.email = email;
+		this.isActive = isActive;
+		this.userId = userId;
+	}
+	
 	public void addPlaylist(Playlist playlist) {
 		
 	}
