@@ -6,8 +6,6 @@ import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.edu.melody.MelodyApplication;
-import org.edu.melody.dao.UserProfile;
 import org.edu.melody.model.Customer;
 import org.edu.melody.model.User;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,9 +26,7 @@ public class TestService {
 			Customer cust =  Customer.builder().isActive(i % 2 == 0).userId(new Random().nextInt()).build();
 			testUsers.add(cust);
 		}
-		UserProfile usr = new UserProfile();
 		logger.debug("Printed the data...........");
-		usr.loadUserProfile();
 		return testUsers;
 	}
 	
@@ -42,8 +38,6 @@ public class TestService {
 			Customer cust =  Customer.builder().email("Test" + i + 1).isActive(i % 2 == 0).userId(new Random().nextInt()).build();
 			testUsers.add(cust);
 		}
-		UserProfile usr = new UserProfile();
-		usr.loadUserProfile();
 		return testUsers;
 	}
 }

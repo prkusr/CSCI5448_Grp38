@@ -19,6 +19,7 @@ public class Customer extends User {
 	private Plan plan;
 	private List<Song> recommendations;
 	private List<Song> purchase;
+	private String test;
 	
 	@Builder
 	public Customer(long userId, String email, boolean isActive){
