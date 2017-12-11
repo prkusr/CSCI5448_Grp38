@@ -19,20 +19,45 @@ public class UserManager {
 	private HashMap<String, User> usersSessionsMap;
 	private UserDao usrDao = new UserDao();
 
+	private String createSession(int userId, Class type){
+		String sessionId = UUID.randomUUID().toString();
+		
+		sessions.add(sessionId);
+		
+		User user = UserFactory.createUser(type);
+		user.setUserId(userId);
+		usrDao.loadUserProfile(user);
+		usersSessionsMap.put(sessionId, user);
+		return sessionId;
+	}
+	
 	public UserManager(){
 		sessions = new ArrayList<String>();
 		usersSessionsMap = new HashMap<String, User>(); 
 	}
 	
-	public void createSession(int userId, Class type){
-		String uniqueID = UUID.randomUUID().toString();
-		
-		sessions.add(uniqueID);
+	public void signUp(String userName, String password, String email, long cellNo, Class type) {
 		
 		User user = UserFactory.createUser(type);
-		user.setUserId(userId);
-		usrDao.loadUserProfile(user);
-		usersSessionsMap.put(uniqueID, user);
+		user.setUserName(userName);
+		user.setEmail(email);
+		user.setCellNumber(cellNo);
+		usrDao.saveUserData(user, password, type);
+		
+	}	
+	
+	public String signIn(String userName, String password, Class type){
+		
+		String sessionId;
+		Integer userId = usrDao.checkIfUserExist(userName, password);
+		
+		if (userId != null){
+			sessionId = createSession(userId, type);
+			logger.debug("Created session for user: ["+userName+"].");
+			return sessionId;
+		}
+		
+		return null;
 	}
 	
 	public boolean isUserLoggedIn(String sessionId){
@@ -47,18 +72,7 @@ public class UserManager {
 	public User getUserInfo(String sessionId){
 		return usersSessionsMap.get(sessionId);
 	}
-	
-	public boolean verifyCredentials(String userName, String password, Class type){
 		
-		Integer userId = usrDao.checkIfUserExist(userName, password);
-		if (userId != null){
-			createSession(userId, type);
-			logger.debug("Created session for user: ["+userName+"].");
-			return true;
-		}
-		
-		return false;
-	}
 	
 	public void logoutUser(String sessionId){
 		
