@@ -96,13 +96,18 @@ public class UserManager {
 		return null;
 	}
 
-	public void signOutUser(String sessionId) {
+	public void signOutUser(String sessionId, Response resp) {
 
 		User user = usersSessionsMap.get(sessionId);
-		String userName = user.getUserName();
-		usersSessionsMap.remove(sessionId);
-		sessions.remove(sessionId);
-		logger.debug("Logged Out user: [" + userName + "].");
+		if (user != null){
+			String userName = user.getUserName();
+			usersSessionsMap.remove(sessionId);
+			sessions.remove(sessionId);
+			logger.debug("Logged Out user: [" + userName + "].");
+		} else{
+			logger.error("User not logged in.");
+			resp.setError(1, "User not logged in.");
+		}					
 	}
 	
 	public void updateAccDetails(User user, long accNum, long routingNum, String bankName, String bankAddr, Response resp) {

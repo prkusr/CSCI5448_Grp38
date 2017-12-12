@@ -70,8 +70,9 @@ public class UserController extends Controller {
 	public Response signOut(@RequestBody SessionInfoDTO sessionInfo) {
 		
 		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
-		userManager.signOutUser(sessionInfo.getSessionId());
-		resp.setMessage("User signed out successfully");
+		userManager.signOutUser(sessionInfo.getSessionId(), resp);
+		if (resp.getErrorCode() == 0)
+			resp.setMessage("User signed out successfully");
 		return resp;
 	}
 
@@ -83,10 +84,13 @@ public class UserController extends Controller {
 		if (usr == null)
 			resp.setError(1, "User not logged In.");
 		else
-			if (usr instanceof Customer)
+			if (usr instanceof Customer){
 				resp.setCustomer((Customer)usr);
-			else if (usr instanceof Artist)
-				resp.setArtist((Artist)usr);
+				resp.setPlan(((Customer)usr).getPlan());
+			}
+			else if (usr instanceof Artist){
+				resp.setArtist((Artist)usr);			
+			}
 			else
 				resp.setUser(usr);
 		return resp;
