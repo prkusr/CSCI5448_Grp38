@@ -52,10 +52,14 @@ public class SongDao extends AbstractDAO {
 				q.append(" where ").append("name ILIKE '%").append(name).append("%'");
 				isWhere = true;
 			}
-			if (!isStringEmpty(genre))
+			if (!isStringEmpty(genre)){
 				q.append(isWhere ? " and " : " where ").append("genre ILIKE '%").append(genre).append("%'");
-			if (!isStringEmpty(artist))
+				isWhere = true;
+			}
+			if (!isStringEmpty(artist)){
 				q.append(isWhere ? " and " : " where ").append("artistname = '").append(artist).append("'");
+				isWhere = true;
+			}
 			q.append(" order by releasedate");
 			if (limit > 0)
 				q.append(" limit ").append(limit);
