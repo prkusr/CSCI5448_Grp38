@@ -85,10 +85,16 @@ public class UserManager {
 		logger.debug("Logged Out user: [" + userName + "].");
 	}
 
-	public int createPlaylist(String playListName, List<Integer> songIds,long userId) {
+	public int createPlaylist(String playListName, List<Integer> songIds, long userId) {
 		if (!AbstractDAO.isStringEmpty(playListName) && songIds != null && !songIds.isEmpty())
-			return usrDao.createPlaylist(playListName, songIds,userId);
+			return usrDao.createPlaylist(playListName, songIds, userId);
 		return -1;
+	}
+
+	public void updatePlaylist(String name, List<Integer> songIds, long userId, long playListId) {
+		if (!AbstractDAO.isStringEmpty(name) || (songIds != null && !songIds.isEmpty())) {
+			usrDao.updatePlaylist(name, songIds, userId, playListId);
+		}
 	}
 
 }

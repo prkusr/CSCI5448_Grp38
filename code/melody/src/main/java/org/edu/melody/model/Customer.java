@@ -2,6 +2,9 @@ package org.edu.melody.model;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.edu.melody.manager.UserManager;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,26 +25,28 @@ public class Customer extends User {
 	private List<Song> recommendations;
 	private List<Song> purchase;
 	private String test;
-	
+
 	@Builder
-	public Customer(long userId, String email, boolean isActive){
+	public Customer(long userId, String email, boolean isActive) {
 		this.email = email;
 		this.isActive = isActive;
 		this.userId = userId;
 	}
-	
+
 	public void addPlaylist(Playlist playlist) {
-		
+		List<Integer> songIds = playlist.getSongs().stream().map((song) -> song.getId()).collect(Collectors.toList());
+		new UserManager().createPlaylist(playlist.getName(), songIds, this.userId);
 	}
-	
+
 	public void updatePlaylist(Playlist playlist) {
-		// TODO : The code to update the payment
+		List<Integer> songIds = playlist.getSongs().stream().map((song) -> song.getId()).collect(Collectors.toList());
+		new UserManager().updatePlaylist(playlist.getName(), songIds, this.userId,playlist.getId());
 	}
-	
+
 	public void deletePlaylist(Playlist playlist) {
 		// TODO : The code to update the payment
 	}
-	
+
 	public void changePlan(Plan plan) {
 		// TODO : The code to update the payment
 	}
@@ -53,7 +58,7 @@ public class Customer extends User {
 	public void insertCreditCardDetails() {
 		// TODO : The code to update the payment
 	}
-	
+
 	public void updateRecommendations() {
 		// TODO : The code to update the payment
 	}
@@ -61,16 +66,17 @@ public class Customer extends User {
 	public void sharePlaylist(Playlist playlist) {
 		// TODO : The code to update the payment
 	}
-	
+
 	public void buySong(Song song) {
 		// TODO : The code to update the payment
 	}
+
 	@Override
 	public String toString() {
-		String planStr = ((plan == null) ? "Not enrolled in any plan.":(", Plan: ["+plan.toString()+"], Plan enrollment Date ["+planEnrollmentDate.toString()+"]"));
-		return new StringBuilder("User {").append(" ["+userName+"]")
-											.append(", cellNo: ["+String.valueOf(cellNumber)+"]")
-											.append(", email: ["+email+"]")
-											.append(", Plan: ["+planStr+"] }").toString();
+		String planStr = ((plan == null) ? "Not enrolled in any plan."
+				: (", Plan: [" + plan.toString() + "], Plan enrollment Date [" + planEnrollmentDate.toString() + "]"));
+		return new StringBuilder("User {").append(" [" + userName + "]")
+				.append(", cellNo: [" + String.valueOf(cellNumber) + "]").append(", email: [" + email + "]")
+				.append(", Plan: [" + planStr + "] }").toString();
 	}
 }

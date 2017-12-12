@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PlaylistDTO {
+	long id;
 	String name;
 	List<Integer> songIds;
 	String sessionId;

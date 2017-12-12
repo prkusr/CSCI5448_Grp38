@@ -168,4 +168,15 @@ public class UserController extends Controller {
 		// return "Attempting: "+wds.getUserId();
 	}
 
+	@RequestMapping(value = "updatePlaylist", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public String updatePlaylist(@RequestBody PlaylistDTO playlist) {
+
+		if (userManager.isUserLoggedIn(playlist.getSessionId()) && playlist.getId() > 0) {
+			userManager.updatePlaylist(playlist.getName(), playlist.getSongIds(),
+					userManager.getUserInfo(playlist.getSessionId()).getUserId(), playlist.getId());
+			logger.info("Updated the playlist");
+			return "{'response' : 'Updated the playlist'}";
+		}
+		return "{ 'Error' : 'User not logged in'}";
+	}
 }
