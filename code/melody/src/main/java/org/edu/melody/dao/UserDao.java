@@ -153,4 +153,41 @@ public class UserDao extends AbstractDAO {
 		}
 		return playlistId;
 	}
+
+	public void updatePlaylist(String name, List<Integer> songIds, long userId, long playListId) {
+		Statement stmt = null;
+		try {
+
+			stmt = getConnection().createStatement();
+			String query;
+
+			if (!AbstractDAO.isStringEmpty(name)) {
+				query = "update playlist set playlistname = '" + name + "'";
+				stmt.executeUpdate(query);
+			}
+
+			if (songIds != null && !songIds.isEmpty()) {
+				query = "Delete from playlistsongsassoc where playlistid = " + playListId;
+				stmt.executeUpdate(query);
+				query = "INSERT INTO playlistsongsassoc VALUES";
+				StringBuilder q = new StringBuilder(query);
+				for (Integer songId : songIds) {
+					q.append("(").append(playListId).append(",").append(songId).append("),");
+				}
+				query = q.toString();
+				// Remove last character
+				query = query.substring(0, query.length() - 1);
+				stmt.executeUpdate(query);
+			}
+		} catch (Exception e) {
+			logger.debug("Unable to create playlist", e);
+		} finally {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				logger.debug("Error while closing statment", e);
+			}
+		}
+
+	}
 }
