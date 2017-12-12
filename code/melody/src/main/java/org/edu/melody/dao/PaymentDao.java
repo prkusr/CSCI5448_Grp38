@@ -1,5 +1,6 @@
 package org.edu.melody.dao;
 
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.time.LocalDate;
 
@@ -7,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.edu.melody.model.CreditCard;
 import org.edu.melody.model.DirectDeposit;
+import org.edu.melody.model.Song;
 import org.edu.melody.model.User;
 import java.time.LocalDateTime;
 
@@ -93,7 +95,25 @@ public class PaymentDao extends AbstractDAO {
 		}
 	}
 	
-	
+	public float debitSong(User usr,int sng){
+		try{
+			Statement stmt = null;
+			float cst=0.0f;
+			stmt = getConnection().createStatement();
+			//long uid=usr.getUserId();
+			//long uid=19;
+			String query = "SELECT cost from Songs where songid="+sng;
+			ResultSet rs = stmt.executeQuery(query);
+			while(rs.next())  
+				 cst= (float)rs.getFloat(1);
+			DebitUser(usr,cst);
+			return cst;
+			
+		}catch(Exception e){
+			
+		}
+		return 0;
+	}
 	
 	public void test() {
 		// TODO Auto-generated method stub

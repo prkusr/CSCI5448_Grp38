@@ -1,17 +1,17 @@
 package org.edu.melody.controller;
 
-import org.apache.logging.log4j.LogManager;
-import org.edu.melody.model.User;
-
 import java.util.Date;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.edu.melody.model.Customer;
-import org.edu.melody.model.Artist;
-import org.edu.melody.model.Plan;
-import org.edu.melody.manager.UserManager;
+import org.edu.melody.dao.PaymentDao;
 import org.edu.melody.manager.PlanManager;
+import org.edu.melody.manager.UserManager;
+import org.edu.melody.model.Artist;
+import org.edu.melody.model.Customer;
+import org.edu.melody.model.Plan;
+import org.edu.melody.model.User;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -116,4 +116,19 @@ public class UserController extends Controller {
 		return message;
 		
 	}
+	
+	@RequestMapping(value = "makepay", method = RequestMethod.GET)
+	public String makePayment(@RequestParam("sessionId") String sessionId,@RequestParam("songid") int songid) {
+				
+		User wds = usrManager.getUserInfo(sessionId);
+		if (wds==null){
+			return "User not logged in";
+		}
+		PaymentDao ad=new PaymentDao();
+		
+		return "You've been charged $"+ad.debitSong(wds,songid);
+		//return "Attempting: "+wds.getUserId();
+	}
+	
+	
 }
