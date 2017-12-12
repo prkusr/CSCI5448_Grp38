@@ -63,4 +63,8 @@ public class SongManager {
 	public boolean updateNewRating(int songId) {
 		return false;
 	}
+
+	public List<Song> getRecommendations() {
+		return songDao.getRecommendations();
+	}
 }

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -101,5 +102,28 @@ public class SongDao extends AbstractDAO {
 		} catch (Exception e) {
 			logger.error("Unble to db", e);
 		}
+	}
+
+	public List<Song> getRecommendations() {
+		List<Song> reccomendations = new ArrayList<>();
+		Statement stmt = null;
+		try {
+			stmt = getConnection().createStatement();
+			String query = "SELECT * FROM songs order by random() limit " + ThreadLocalRandom.current().nextInt(15, 51);
+			ResultSet rs = stmt.executeQuery(query);
+
+			while (rs.next()) {
+				reccomendations.add(getSongFromResultSet(rs));
+			}
+		} catch (Exception e) {
+			logger.error("Unable to get recent songs", e);
+		} finally {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				logger.error("Unable to close statement", e);
+			}
+		}
+		return reccomendations;
 	}
 }

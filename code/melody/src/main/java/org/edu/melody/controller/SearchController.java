@@ -47,4 +47,11 @@ public class SearchController extends Controller {
 		return new SongManager().getRecentSongs();
 
 	}
+	
+	@RequestMapping(value = "recommedation")
+	public List<Song> recommendations() {
+		return new SongManager().getRecommendations();
+
+	}
+	
 }
