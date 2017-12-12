@@ -46,9 +46,9 @@ public class Customer extends User {
 	public void deletePlaylist(Playlist playlist) {
 		// TODO : The code to update the payment
 	}
-
-	public void changePlan(Plan plan) {
-		// TODO : The code to update the payment
+	
+	public void changePlan(Plan plan) {		
+		this.plan.modifyPlan(plan);
 	}
 
 	public void updatePlayHistory() {

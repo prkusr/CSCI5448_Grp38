@@ -9,20 +9,20 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.edu.melody.model.*;
+import org.edu.melody.response.Response;
 
 public class UserDao extends AbstractDAO {
 
 	private static final Logger logger = LogManager.getLogger(UserDao.class);
 
-	public void saveUserData(User user, String password, Class type) {
+	public void saveUserData(User user, String password, Class type, Response resp) {
+
 		Statement stmt = null;
 		try {
 			stmt = getConnection().createStatement();
 			String query = "SELECT * FROM Users WHERE userName = '" + user.getUserName() + "'";
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
-
-				// stmt = getConnection().createStatement();
 				String updateStmt = "UPDATE Users " + " SET email = '" + user.getEmail() + "' , cellNo = "
 						+ String.valueOf(user.getCellNumber());
 				if (password.length() > 0)
@@ -43,18 +43,20 @@ public class UserDao extends AbstractDAO {
 					userType = 3;
 				}
 				// stmt = getConnection().createStatement();
-				String insertStmt = "INSERT INTO Users(userName, password, email, cellNo, type)" + "VALUES('"
-						+ user.getUserName() + "'" + ", " + "crypt('" + password + "', gen_salt('md5'))" + ", '"
-						+ user.getEmail() + "'" + " , " + String.valueOf(user.getCellNumber()) + " , "
-						+ String.valueOf(userType) + ")";
-				logger.debug("Query: " + insertStmt);
+				String insertStmt = "INSERT INTO Users(userName, password, email, cellNo, type)" 
+						+ "VALUES('" + user.getUserName() +"'"
+						+ ", " + "crypt('" + password + "', gen_salt('md5'))"
+						+ ", '" + user.getEmail() + "'" 
+						+ " , " + String.valueOf(user.getCellNumber())
+						+ " , " + String.valueOf(userType) + ")";
+				//logger.debug("Query: " + insertStmt);
 				stmt.execute(insertStmt);
 				logger.debug("Created new user: " + user.getUserName());
 			}
-
-		} catch (Exception e) {
-			logger.error("Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage() + "\n"
-					+ e.getStackTrace());
+			stmt.close();
+		} catch (Exception e) {			
+			logger.error("Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
+			resp.setError(1, "Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage());
 		} finally {
 			try {
 				stmt.close();
@@ -64,7 +66,7 @@ public class UserDao extends AbstractDAO {
 		}
 	}
 
-	public void loadUserProfile(User user) {
+	public void loadUserProfile(User user, Response resp) {
 
 		try {
 
@@ -80,12 +82,13 @@ public class UserDao extends AbstractDAO {
 				logger.debug(rs.getString("userName") + " " + rs.getString("email"));
 			}
 		} catch (Exception e) {
-			logger.error(e.getClass().getName() + ": " + e.getMessage() + "\n" + e.getStackTrace());
+			logger.error(e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
+			resp.setError(1, "Error in loading user profile: "+e.getClass().getName() + ": " + e.getMessage());
 		}
 
 	}
 
-	public Integer checkIfUserExist(String userName, String password) {
+	public Integer checkIfUserExist(String userName, String password, Response resp) {
 
 		try {
 
@@ -98,22 +101,11 @@ public class UserDao extends AbstractDAO {
 				return (new Integer(rs.getInt("userId")));
 			}
 		} catch (Exception e) {
-			logger.error(e.getClass().getName() + ": " + e.getMessage() + "\n" + e.getStackTrace());
+			logger.error(e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
+			resp.setError(1, "Error in checking for user: "+e.getClass().getName() + ": " + e.getMessage());
 		}
 		return null;
-	}
-
-	public void test() {
-		try {
-
-			// loadUserProfile(user);
-			logger.info("Test DaTABASE");
-
-		} catch (Exception e) {
-			logger.error("Unble to db", e);
-		}
-
-	}
+	}				
 
 	public int createPlaylist(String playListName, List<Integer> songIds, long userId) {
 		Statement stmt = null;
@@ -188,6 +180,5 @@ public class UserDao extends AbstractDAO {
 				logger.debug("Error while closing statment", e);
 			}
 		}
-
 	}
 }

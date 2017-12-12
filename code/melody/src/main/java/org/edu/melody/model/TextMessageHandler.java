@@ -19,6 +19,7 @@ public class TextMessageHandler extends MessageHandler {
 	public static final String ACCOUNT_SID = "AC8af8feedded5bc53aef9816363048148";
 	static final String AUTH_TOKEN = "b32e8259c0fa9a98b7fa555baad094ae";
 	private static final Logger logger = LogManager.getLogger(TextMessageHandler.class);
+	
 	public void sendMessage(String m){
 		Twilio.init(ACCOUNT_SID, AUTH_TOKEN);
 		Message message = Message.creator(new PhoneNumber("+1"+this.receiverNumber), // to

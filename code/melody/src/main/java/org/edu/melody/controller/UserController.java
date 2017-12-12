@@ -1,5 +1,9 @@
 package org.edu.melody.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.edu.melody.model.User;
+import org.edu.melody.response.Response;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -32,94 +36,137 @@ public class UserController extends Controller {
 	public static Map<Integer, Integer> uiotp = new HashMap<>();
 
 	@RequestMapping(value = "login", method = RequestMethod.GET)
-	public String login(@RequestParam("name") String userName, @RequestParam("pwd") String password,
+	public Response login(@RequestParam("name") String userName, @RequestParam("pwd") String password,
 			@RequestParam(value = "type", defaultValue = "c", required = true) String userType) {
 
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
+		
 		Class usrType;
 		if (userType.equals("c"))
 			usrType = Customer.class;
 		else
-			usrType = Artist.class;
-		return userManager.signIn(userName, password, usrType);
+			usrType = Artist.class;	
+		String sessionId = userManager.signIn(userName, password, usrType, resp);
+		resp.setMessage("SessionId: {"+sessionId+"}");
+		return resp;
+
 	}
 
 	@RequestMapping(value = "signup", method = RequestMethod.GET)
-	public void signUp(@RequestParam("name") String userName, @RequestParam("pwd") String password,
+	public Response signUp(@RequestParam("name") String userName, @RequestParam("pwd") String password,
 			@RequestParam(value = "type", required = true) String userType,
 			@RequestParam(value = "email", required = true) String email,
 			@RequestParam(value = "cellnum", required = true) long cellNum) {
-
+		
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
 		Class usrType;
 		if (userType.equals("c"))
 			usrType = Customer.class;
 		else
 			usrType = Artist.class;
-		userManager.signUp(userName, password, email, cellNum, usrType);
+		
+		userManager.signUp(userName, password, email, cellNum, usrType, resp);		
+		
+		if(resp.getErrorCode() == 0)
+			resp.setMessage("User Signup successfull.");
+		return resp;
 	}
 
 	@RequestMapping(value = "signout", method = RequestMethod.GET)
-	public void signOut(@RequestParam("sessionId") String sessionId) {
-
+	public Response signOut(@RequestParam("sessionId") String sessionId) {
+		
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
 		userManager.signOutUser(sessionId);
+		resp.setMessage("User signed out successfully");
+		return resp;
 	}
 
 	@RequestMapping(value = "getuser", method = RequestMethod.GET)
-	public String getUserInfo(@RequestParam("sessionId") String sessionId) {
-
+	public Response getUserInfo(@RequestParam("sessionId") String sessionId) {
+				
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
 		User usr = userManager.getUserInfo(sessionId);
 		if (usr == null)
-			return "User not logged In.";
-		return usr.toString();
-
+			resp.setError(1, "User not logged In.");
+		else
+			if (usr instanceof Customer)
+				resp.setCustomer((Customer)usr);
+			else if (usr instanceof Artist)
+				resp.setArtist((Artist)usr);
+			else
+				resp.setUser(usr);
+		return resp;
 	}
 
 	@RequestMapping(value = "plans")
-	public List<Plan> getPlans() {
-
-		logger.debug("Fetching plans....");
-		System.out.println(planManager.getPlans());
-		return planManager.getPlans();
-
+	public Response getPlans() {
+			
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
+		logger.debug("Fetching plans....");		
+		resp.setPlans(planManager.getPlans());
+		return resp;
 	}
 
 	@RequestMapping(value = "enrollplan", method = RequestMethod.GET)
-	public String enrollInPlan(@RequestParam("sessionId") String sessionId, @RequestParam("planid") int planId) {
-
-		String message;
-
-		try {
-
+	public Response enrollInPlan(@RequestParam("sessionId") String sessionId, @RequestParam("planid") int planId) {
+				
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
+		
+		try {	
 			Customer cust;
 			int paymentId = -1;
 			User usr = userManager.getUserInfo(sessionId);
 			if (usr == null)
-				message = "User not logged In.";
-			else if (usr instanceof Customer) {
+				resp.setError(1,"User not logged In.");
+			else if( usr instanceof Customer) {
 				cust = (Customer) userManager.getUserInfo(sessionId);
-
-				if (!planManager.checkEnrollment(cust)) {
-
-					boolean enrollmentRequiresPayment = planManager.requiresPayment(planId);
-					if (enrollmentRequiresPayment) {
+				
+				if (!planManager.checkEnrollment(cust, resp)) {
+					
+					boolean enrollmentRequiresPayment = planManager.requiresPayment(planId, resp);		
+					
+					if(resp.getErrorCode() > 0)
+						return resp;
+					if (enrollmentRequiresPayment){
 						// Do Payment Processing
-					}
-
-					planManager.planEnrollment(cust, planId, paymentId);
-					cust.setPlanEnrollmentDate(new Date());
-					message = "Enrolled user [" + cust.getUserName() + "] to plan.";
-				} else {
-					message = "User already enrolled in a plan";
+					}					
+					planManager.planEnrollment(cust, planId, paymentId,resp);					
+					cust.setPlanEnrollmentDate(new Date());				
+					if(resp.getErrorCode() == 0)
+						resp.setMessage("Enrolled user ["+cust.getUserName()+"] to plan.");
+				}else{
+					resp.setMessage("User already enrolled in a plan");
 				}
 			} else
-				message = "Operation not valid for this user.";
-		} catch (Exception e) {
-			logger.error("Failed to enroll user to plan: " + e.getClass().getName() + ": " + e.getMessage() + "\n"
-					+ e.getStackTrace());
-			message = "Failed to enroll user to plan: " + e.getClass().getName() + ": " + e.getMessage();
+				resp.setError(1, "Operation not valid for this user."); 			
+		} catch(Exception e) {
+			logger.error("Failed to enroll user to plan: "+e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
+			resp.setError(1, "Failed to enroll user to plan: "+e.getClass().getName() + ": " + e.getMessage());
 		}
-
-		return message;
-
+		
+		return resp;
+		
+	}
+	
+	@RequestMapping(value = "changeacc", method = RequestMethod.GET)
+	public Response changeAccDetForArtist(@RequestParam("sessionId") String sessionId, 
+											@RequestParam("accno") long accNum,
+											@RequestParam("rounting") long routingNum,
+											@RequestParam("bankname") String bankName,
+											@RequestParam("bankaddr") String bankAddr) {
+		
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
+		
+		User usr = userManager.getUserInfo(sessionId);
+		if (usr != null){
+			if (usr instanceof Artist){
+				userManager.updateAccDetails(accNum, routingNum, bankName, bankAddr, resp);
+			}
+			resp.setError(1,"Operation not supported .");
+		}else
+			resp.setError(1,"User not logged In.");
+		
+		return resp;
 	}
 
 	@RequestMapping(value = "makepay", method = RequestMethod.GET)

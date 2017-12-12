@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.edu.melody.dao.PlanDao;
 import org.edu.melody.model.*;
+import org.edu.melody.response.Response;
 
 public class PlanManager {
 	
@@ -30,24 +31,24 @@ public class PlanManager {
 		}
 		return null;
 	}
-	public boolean requiresPayment(int planId) throws Exception{
+	public boolean requiresPayment(int planId, Response resp) {
 		
 		Plan plan = isValidPlanId(planId);
 		if (plan == null)
-			throw new Exception("Invalid Plan Id.");
+			resp.setError(1, "Invalid Plan Id.");			
 		if (plan.getCost() > 0)
 				return true;		
 		return false;
 	}
 	
-	public boolean checkEnrollment(Customer usr){
-		return PlanDao.isUserAlreadyEnrolledInPlan(usr);
+	public boolean checkEnrollment(Customer usr, Response resp){
+		return PlanDao.isUserAlreadyEnrolledInPlan(usr, resp);
 	}
 	
-	public void planEnrollment(Customer usr, int planId, int paymentId) throws Exception {
+	public void planEnrollment(Customer usr, int planId, int paymentId, Response resp) {
 				
 		Plan plan = isValidPlanId(planId);
-		PlanDao.saveUserPlanEnrollment(usr, plan, paymentId);
+		PlanDao.saveUserPlanEnrollment(usr, plan, paymentId, resp);
 		
 	}
 }

@@ -22,17 +22,13 @@ public class Plan {
 	private float cost;
 	
 	
-	public void modifyPlan(){
-		// TODO : The code to update the payment
+	public void modifyPlan(Plan plan){
+		this.id = plan.getId();
+		this.planName = plan.getPlanName();
+		this.durationInDays = plan.getDurationInDays();
+		this.cost = plan.getCost();
 	}
 	
-	public void deletePlan(Plan plan) {
-		// TODO : The code to update the payment
-	}
-	
-	public void  createPlan(int id, int duration, float cost){
-		// TODO : The code to update the payment
-	}
 	
 	@Override
 	public String toString() {

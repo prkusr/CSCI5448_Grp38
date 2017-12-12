@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.edu.melody.model.Plan;
 import org.edu.melody.model.User;
+import org.edu.melody.response.Response;
 
 
 public class PlanDao extends AbstractDAO {
@@ -30,11 +31,12 @@ public class PlanDao extends AbstractDAO {
 			}
 			logger.debug("Loaded all plans from Database.");
 		} catch (Exception e) {
-			logger.error("Failed to load plans from Database. "+e.getClass().getName() + ": " + e.getMessage() +"\n"+e.getStackTrace());
+			String errorStr = "Failed to load plans from Database. "+e.getClass().getName() + ": " + e.getMessage() ;
+			logger.error(errorStr+"\n"+e.getStackTrace());			
 		}
 	}
 	
-	public static boolean isUserAlreadyEnrolledInPlan(User usr) {
+	public static boolean isUserAlreadyEnrolledInPlan(User usr, Response resp) {
 		
 		boolean flag = true;
 		try {
@@ -58,13 +60,15 @@ public class PlanDao extends AbstractDAO {
 				flag = false;
 			}			
 		} catch (Exception e) {
-			logger.error("Failed to load plan for user ["+usr.getUserName()+"] - "+e.getClass().getName() + ": " + e.getMessage() +"\n"+e.getStackTrace());
+			String errorStr = "Failed to load plan for user ["+usr.getUserName()+"] - "+e.getClass().getName() + ": " + e.getMessage();
+			logger.error(errorStr +"\n"+e.getStackTrace());
+			resp.setError(1, errorStr);
 			flag = false;
 		}
 		return flag;
 	}
 	
-	public static void saveUserPlanEnrollment(User usr, Plan plan, int paymentId) {
+	public static void saveUserPlanEnrollment(User usr, Plan plan, int paymentId, Response resp) {
 		
 		try {
 
@@ -85,7 +89,9 @@ public class PlanDao extends AbstractDAO {
 			stmt.executeUpdate(query);			
 			logger.debug("Enrolled user ["+usr.getUserName()+"] to plan ["+plan.getPlanName()+"].");
 		} catch (Exception e) {
-			logger.error("Failed to enroll user ["+usr.getUserName()+"] to plan ["+plan.getPlanName()+"]: "+e.getClass().getName() + ": " + e.getMessage());
+			String errorStr = "Failed to enroll user ["+usr.getUserName()+"] to plan ["+plan.getPlanName()+"]: "+e.getClass().getName();
+			logger.error(errorStr + ": " + e.getMessage());
+			resp.setError(1, errorStr);
 		}
 	}
 }

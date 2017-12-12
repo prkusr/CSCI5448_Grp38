@@ -10,6 +10,7 @@ import org.edu.melody.dao.AbstractDAO;
 import org.edu.melody.dao.SongDao;
 import org.edu.melody.dao.UserDao;
 import org.edu.melody.model.*;
+import org.edu.melody.response.Response;
 
 import java.util.UUID;
 
@@ -21,14 +22,14 @@ public class UserManager {
 	private HashMap<String, User> usersSessionsMap;
 	private UserDao usrDao = new UserDao();
 
-	private String createSession(int userId, Class type) {
+	private String createSession(int userId, Class type, Response resp){
 		String sessionId = UUID.randomUUID().toString();
 
 		sessions.add(sessionId);
 
 		User user = UserFactory.createUser(type);
 		user.setUserId(userId);
-		usrDao.loadUserProfile(user);
+		usrDao.loadUserProfile(user, resp);
 		usersSessionsMap.put(sessionId, user);
 		return sessionId;
 	}
@@ -37,28 +38,28 @@ public class UserManager {
 		sessions = new ArrayList<String>();
 		usersSessionsMap = new HashMap<String, User>();
 	}
-
-	public void signUp(String userName, String password, String email, long cellNo, Class type) {
+	
+	public void signUp(String userName, String password, String email, long cellNo, Class type, Response resp) {
 
 		User user = UserFactory.createUser(type);
 		user.setUserName(userName);
 		user.setEmail(email);
 		user.setCellNumber(cellNo);
-		usrDao.saveUserData(user, password, type);
-
-	}
-
-	public String signIn(String userName, String password, Class type) {
-
+		usrDao.saveUserData(user, password, type, resp);		
+	}	
+	
+	public String signIn(String userName, String password, Class type, Response resp){
+		
 		String sessionId;
-		Integer userId = usrDao.checkIfUserExist(userName, password);
-
-		if (userId != null) {
-			sessionId = createSession(userId, type);
-			logger.debug("Created session for user: [" + userName + "].");
+		Integer userId = usrDao.checkIfUserExist(userName, password, resp);
+		
+		if (userId != null){
+			sessionId = createSession(userId, type, resp);
+			logger.debug("Created session for user: ["+userName+"].");
 			return sessionId;
 		} else {
-			logger.error("Username/password doesn't match: [" + userName + "].");
+			logger.error("Username/password doesn't match: ["+userName+"].");
+			resp.setMessage("Username/password doesn't match: ["+userName+"].");
 		}
 
 		return null;
@@ -83,6 +84,12 @@ public class UserManager {
 		usersSessionsMap.remove(sessionId);
 		sessions.remove(sessionId);
 		logger.debug("Logged Out user: [" + userName + "].");
+	}
+	
+	public void updateAccDetails(long accNum, long routingNum, String bankName, String bankAddr, Response resp) {
+		
+		
+		
 	}
 
 	public int createPlaylist(String playListName, List<Integer> songIds, long userId) {
