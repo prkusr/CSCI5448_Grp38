@@ -12,12 +12,14 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.edu.melody.dao.PaymentDao;
+import org.edu.melody.manager.PaymentManager;
 import org.edu.melody.manager.PlanManager;
 import org.edu.melody.manager.UserManager;
 import org.edu.melody.model.Artist;
 import org.edu.melody.model.Customer;
 import org.edu.melody.model.Plan;
 import org.edu.melody.model.PlaylistDTO;
+import org.edu.melody.model.SetupDDDTO;
 import org.edu.melody.model.TextMessageHandler;
 import org.edu.melody.model.User;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -33,7 +35,10 @@ public class UserController extends Controller {
 	static final Logger logger = LogManager.getLogger(UserController.class);
 	UserManager userManager = new UserManager();
 	PlanManager planManager = new PlanManager();
-	public static Map<Integer, Integer> uiotp = new HashMap<>();
+	PaymentManager paymentManager = new PaymentManager();
+
+	public static Map<Long, Long> uiotp = new HashMap<>();
+	public static final String saveDDAndSendOtp = "SSDO";
 
 	@RequestMapping(value = "login", method = RequestMethod.GET)
 	public Response login(@RequestParam("name") String userName, @RequestParam("pwd") String password,
@@ -206,7 +211,7 @@ public class UserController extends Controller {
 		boolean sms = ad.send();
 
 		if (sms == true) {
-			uiotp.put((int) wds.getUserId(), ad.getOtp());
+			uiotp.put(wds.getUserId(), ad.getOtp());
 			return "A message has been sent to : " + rcnum + " :  " + uiotp;
 
 		}
@@ -226,4 +231,22 @@ public class UserController extends Controller {
 		}
 		return "{ 'Error' : 'User not logged in'}";
 	}
+
+	@RequestMapping(value = saveDDAndSendOtp, method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public String saveDirectDepositAndSendOtp(@RequestBody SetupDDDTO setup) {
+		if (userManager.isUserLoggedIn(setup.getSessionId())) {
+			paymentManager.saveDDandSendOtp(userManager.getUserInfo(setup.getSessionId()), setup.getAccountNo(),
+					setup.getRoutingNumber(), setup.getBankName(), setup.getBankAddress());
+		}
+		return "{saved details}";
+	}
+
+	@RequestMapping(value = "validateOTP", method = RequestMethod.GET)
+	public String validateOTP(@RequestParam("sessionId") String sessionId, @RequestParam("otp") long entotp) {
+		if (userManager.isUserLoggedIn(sessionId)) {
+			paymentManager.insertDDFromOTP(userManager.getUserInfo(sessionId), entotp);
+		}
+		return "Test";
+	}
+
 }

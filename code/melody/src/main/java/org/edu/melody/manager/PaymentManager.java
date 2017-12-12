@@ -13,8 +13,8 @@ import org.edu.melody.model.User;
 public class PaymentManager {
 	private static final Logger logger = LogManager.getLogger(PaymentManager.class);
 	private PaymentDao payDao = new PaymentDao();
-	public static Map<Integer, Integer> uiotp = new HashMap<>();
-	private static Map<Integer, DirectDeposit> otpToDd = new HashMap<>();
+	public static Map<Long, Long> uiotp = new HashMap<>();
+	private static Map<Long, DirectDeposit> otpToDd = new HashMap<>();
 
 	// Insert details, check validity, insert to database
 	public void saveDDandSendOtp(User usr, long accountNo, long routingNumber, String bankName, String bankAddress) {
@@ -27,29 +27,27 @@ public class PaymentManager {
 		boolean sms = ad.send();
 
 		if (sms == true) {
-			uiotp.put((int) usr.getUserId(), ad.getOtp());
-			otpToDd.put(ad.getOtp(),dp);
+			uiotp.put(usr.getUserId(), ad.getOtp());
+			otpToDd.put(ad.getOtp(), dp);
 		}
-		
 
 	}
-	public boolean validOTP(User usr, int entotp){
-		if (uiotp.get(usr.getUserId())==entotp){
-			return true;
-		}
-		return false;
+
+	public boolean validOTP(User usr, long entotp) {
+		return uiotp.get(usr.getUserId()) != null && uiotp.get(usr.getUserId()) == entotp;
 	}
-	public boolean addtodb(User usr, int entotp){
-		if (validOTP(usr, entotp)){
-			try{
-				payDao.SetupDirectDeposit(usr, otpToDd.get(entotp));
-			return true;
-			}catch(Exception e){
-				return false;
+
+	public boolean insertDDFromOTP(User usr, long entotp) {
+		boolean success = false;
+		if (validOTP(usr, entotp)) {
+			try {
+				payDao.setupDirectDeposit(usr, otpToDd.get(entotp));
+				success = true;
+			} catch (Exception e) {
+				logger.error("Error while validating the OTP and saving DD details", e);
 			}
 		}
-		return false;
-		
-		
+		return success;
+
 	}
 }

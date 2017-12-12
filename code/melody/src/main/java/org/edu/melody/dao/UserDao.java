@@ -79,6 +79,7 @@ public class UserDao extends AbstractDAO {
 				user.setEmail(rs.getString("email"));
 				user.setUserName(rs.getString("userName"));
 				user.setSessionCreatedTime(new Date());
+				user.setCellNumber(rs.getLong("cellno"));
 				logger.debug(rs.getString("userName") + " " + rs.getString("email"));
 			}
 		} catch (Exception e) {
