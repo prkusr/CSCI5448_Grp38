@@ -11,8 +11,6 @@ import org.apache.logging.log4j.Logger;
 import org.edu.melody.model.*;
 import org.edu.melody.response.Response;
 
-import scala.annotation.meta.setter;
-
 public class UserDao extends AbstractDAO {
 
 	private static final Logger logger = LogManager.getLogger(UserDao.class);
@@ -45,19 +43,18 @@ public class UserDao extends AbstractDAO {
 					userType = 3;
 				}
 				// stmt = getConnection().createStatement();
-				String insertStmt = "INSERT INTO Users(userName, password, email, cellNo, type)" 
-						+ "VALUES('" + user.getUserName() +"'"
-						+ ", " + "crypt('" + password + "', gen_salt('md5'))"
-						+ ", '" + user.getEmail() + "'" 
-						+ " , " + String.valueOf(user.getCellNumber())
-						+ " , " + String.valueOf(userType) + ")";
-				//logger.debug("Query: " + insertStmt);
+				String insertStmt = "INSERT INTO Users(userName, password, email, cellNo, type)" + "VALUES('"
+						+ user.getUserName() + "'" + ", " + "crypt('" + password + "', gen_salt('md5'))" + ", '"
+						+ user.getEmail() + "'" + " , " + String.valueOf(user.getCellNumber()) + " , "
+						+ String.valueOf(userType) + ")";
+				// logger.debug("Query: " + insertStmt);
 				stmt.execute(insertStmt);
 				logger.debug("Created new user: " + user.getUserName());
 			}
 			stmt.close();
-		} catch (Exception e) {			
-			logger.error("Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
+		} catch (Exception e) {
+			logger.error("Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage() + "\n"
+					+ e.getStackTrace());
 			resp.setError(1, "Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage());
 		} finally {
 			try {
@@ -78,34 +75,36 @@ public class UserDao extends AbstractDAO {
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
 				if ((rs.getInt("status") & 1) == 1)
-						resp.setError(1, "["+rs.getString("userName")+"] account is temporarily disabled.");
-				else {								
+					resp.setError(1, "[" + rs.getString("userName") + "] account is temporarily disabled.");
+				else {
 					user.setEmail(rs.getString("email"));
 					user.setUserName(rs.getString("userName"));
 					user.setSessionCreatedTime(new Date());
 					user.setCellNumber(rs.getLong("cellno"));
-					user.setAdmin((rs.getInt("type") == 1)?true:false);
-				}			
+					user.setAdmin((rs.getInt("type") == 1) ? true : false);
+				}
 			}
 		} catch (Exception e) {
-			logger.error(e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
-			resp.setError(1, "Error in loading user profile: "+e.getClass().getName() + ": " + e.getMessage());
+			logger.error(e.getClass().getName() + ": " + e.getMessage() + "\n" + e.getStackTrace());
+			resp.setError(1, "Error in loading user profile: " + e.getClass().getName() + ": " + e.getMessage());
 		}
 	}
-	
-	public void flipActivationStatusForUser(String userName, Response resp){
+
+	public void flipActivationStatusForUser(String userName, Response resp) {
 		try {
 
 			Statement stmt = null;
 			stmt = getConnection().createStatement();
-			String query = "UPDATE Users SET status = (CASE status WHEN 1 THEN 0 WHEN 0 THEN 1 END) WHERE userName = '"+userName+"'";
+			String query = "UPDATE Users SET status = (CASE status WHEN 1 THEN 0 WHEN 0 THEN 1 END) WHERE userName = '"
+					+ userName + "'";
 			int rowUpdateCount = stmt.executeUpdate(query);
 			if (rowUpdateCount < 1) {
-				resp.setError(1, "Could find the username ["+userName+"] in DB.");
+				resp.setError(1, "Could find the username [" + userName + "] in DB.");
 			}
 		} catch (Exception e) {
-			String errStr = "Error in changing activation status for user: ["+userName+"] - "+e.getClass().getName() + ": " + e.getMessage();
-			logger.error(errStr+"\n"+e.getStackTrace());
+			String errStr = "Error in changing activation status for user: [" + userName + "] - "
+					+ e.getClass().getName() + ": " + e.getMessage();
+			logger.error(errStr + "\n" + e.getStackTrace());
 			resp.setError(1, errStr);
 		}
 	}
@@ -123,11 +122,11 @@ public class UserDao extends AbstractDAO {
 				return (new Integer(rs.getInt("userId")));
 			}
 		} catch (Exception e) {
-			logger.error(e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
-			resp.setError(1, "Error in checking for user: "+e.getClass().getName() + ": " + e.getMessage());
+			logger.error(e.getClass().getName() + ": " + e.getMessage() + "\n" + e.getStackTrace());
+			resp.setError(1, "Error in checking for user: " + e.getClass().getName() + ": " + e.getMessage());
 		}
 		return null;
-	}				
+	}
 
 	public int createPlaylist(String playListName, List<Integer> songIds, long userId) {
 		Statement stmt = null;
