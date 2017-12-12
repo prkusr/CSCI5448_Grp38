@@ -17,6 +17,7 @@ public class Plan {
 
 	
 	private int id;
+	private String planName;
 	private int durationInDays;
 	private float cost;
 	
@@ -33,4 +34,9 @@ public class Plan {
 		// TODO : The code to update the payment
 	}
 	
+	@Override
+	public String toString() {
+		return new StringBuilder("Plan: ").append(" {"+planName+"} ").append(" Duration: {"+String.valueOf(durationInDays)+"} ")
+				.append(" Cost: {"+String.valueOf(cost)+"} ").toString();
+	}
 }

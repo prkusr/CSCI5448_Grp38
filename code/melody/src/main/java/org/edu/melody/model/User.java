@@ -39,6 +39,6 @@ public abstract class User {
 
 	@Override
 	public String toString() {
-		return new StringBuilder("User{").append("loggedIn" + isUserLoggedIn()).toString();
+		return new StringBuilder("User {").append("["+userName+"]").append(" : ["+String.valueOf(cellNumber)+"]").append(" : ["+email+"] }").toString();
 	}
 }

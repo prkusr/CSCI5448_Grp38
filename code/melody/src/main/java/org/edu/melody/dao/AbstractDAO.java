@@ -7,13 +7,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public abstract class AbstractDAO {
-	protected Connection conn = null;
+	protected static Connection conn = null;
 	private static final Logger logger = LogManager.getLogger(AbstractDAO.class);
 	protected static final String jdbc = "jdbc:postgresql://localhost:5432/melody";
 	private static final String db = "postgres";
 	private static final String pass = "ooad";
 
-	public Connection getConnection() {
+	public static Connection getConnection() {
 		if (conn == null) {
 			try {
 				conn = DriverManager.getConnection(jdbc, db, pass);

@@ -52,9 +52,8 @@ public class UserDao extends AbstractDAO {
 				logger.debug("Created new user: " + user.getUserName());
 			}
 			stmt.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-			logger.error("Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage());
+		} catch (Exception e) {			
+			logger.error("Error in saving User Data... : " + e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
 		}
 	}
 
@@ -74,7 +73,7 @@ public class UserDao extends AbstractDAO {
 				logger.debug(rs.getString("userName") + " " + rs.getString("email"));
 			}
 		} catch (Exception e) {
-			logger.error(e.getClass().getName() + ": " + e.getMessage());
+			logger.error(e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
 		}
 
 	}
@@ -92,7 +91,7 @@ public class UserDao extends AbstractDAO {
 				return (new Integer(rs.getInt("userId")));
 			}
 		} catch (Exception e) {
-			logger.error(e.getClass().getName() + ": " + e.getMessage());
+			logger.error(e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
 		}
 		return null;
 	}

@@ -83,5 +83,26 @@ CREATE TABLE CreditCardDetails (
 INSERT INTO CreditCardDetails
 values(2, crypt('123423451627485', gen_salt('md5')), crypt('123', gen_salt('md5')), 'Discover', 12, 2022, 'Aditya T','1450 20th Street');
 
+CREATE TABLE Plans (
+    planId SERIAL PRIMARY KEY,
+    planName    VARCHAR(255),
+    planDuration    INT,
+    cost            FLOAT
+);
+
+INSERT INTO Plans (planName, planDuration, cost)
+VALUES('Free Plan', 30, 0.0), ('Basic Plan(Monthly)', 30, 10), ('Pro - Annual', 365, 100);
+
+CREATE TABLE UserPlanAssociation (
+    userId INT,
+    planId  INT,
+    enrollmentDate  DATE,
+    paymentId   INT NULL
+);
+
+INSERT INTO UserPlanAssociation(userId, planId, enrollmentDate, paymentId)
+VALUES(3, 1, current_date-10, NULL);
+
+
 
 INSERT INTO PaymentDetails(userId,amount,paymentDate,comments) values(1,10.99,'2016-05-02','successful')

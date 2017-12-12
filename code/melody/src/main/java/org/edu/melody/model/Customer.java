@@ -1,5 +1,6 @@
 package org.edu.melody.model;
 
+import java.util.Date;
 import java.util.List;
 
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ public class Customer extends User {
 	private Playlist playlist;
 	private List<Song> userHistory;
 	private Plan plan;
+	private Date planEnrollmentDate;
 	private List<Song> recommendations;
 	private List<Song> purchase;
 	private String test;
@@ -65,6 +67,10 @@ public class Customer extends User {
 	}
 	@Override
 	public String toString() {
-		return new StringBuilder("Customer{").append("loggedIn" + isUserLoggedIn()).toString();
+		String planStr = ((plan == null) ? "Not enrolled in any plan.":(", Plan: ["+plan.toString()+"], Plan enrollment Date ["+planEnrollmentDate.toString()+"]"));
+		return new StringBuilder("User {").append(" ["+userName+"]")
+											.append(", cellNo: ["+String.valueOf(cellNumber)+"]")
+											.append(", email: ["+email+"]")
+											.append(", Plan: ["+planStr+"] }").toString();
 	}
 }
