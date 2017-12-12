@@ -20,7 +20,8 @@ public abstract class User {
 	protected long cellNumber;
 	protected String email;
 	private boolean loggedIn;
-
+	private boolean isAdmin;	
+	
 	public void updatePayment() {
 		// TODO : The code to update the payment
 	}

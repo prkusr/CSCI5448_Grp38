@@ -18,3 +18,7 @@ values('admin', crypt('ooad', gen_salt('md5')), 'admin@admin.com', 1234323413, 1
 SELECT crypt('ooad', gen_salt('md5')),* FROM Users;
 
 SELECT * FROM Users WHERE password = crypt('ooad', password);
+
+ALTER TABLE Users ADD COLUMN status INT NULL;
+UPDATE Users SET status = 0;
+

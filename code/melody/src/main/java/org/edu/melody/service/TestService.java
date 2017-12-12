@@ -46,7 +46,7 @@ public class TestService {
 	public void checkIsUserExist() {
 
 		PaymentDao ad=new PaymentDao();
-		ad.test();
+		
 		
 		
 	}

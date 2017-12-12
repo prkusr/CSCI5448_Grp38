@@ -20,9 +20,12 @@ public class Artist extends User {
 	private int numberOfAlbums;
 	private float monthlyPayment;
 	private List<Song>	songs;
-	private Payment account;
+	private DirectDeposit directDeposit;
 	
-	public void modifyAccount(Payment directDep) {
-		// TODO : The code to update the payment
+	public void modifyAccount(long accNum, long routingNum, String bankName, String bankAddr) {
+		this.directDeposit.setAccountNo(accNum);
+		this.directDeposit.setRoutingNumber(routingNum);
+		this.directDeposit.setBankName(bankName);
+		this.directDeposit.setBankAddress(bankAddr);
 	}
 }

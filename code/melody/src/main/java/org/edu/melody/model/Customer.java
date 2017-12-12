@@ -25,6 +25,7 @@ public class Customer extends User {
 	private List<Song> recommendations;
 	private List<Song> purchase;
 	private String test;
+	private CreditCard creditCardDetails;
 
 	@Builder
 	public Customer(long userId, String email, boolean isActive) {

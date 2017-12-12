@@ -17,11 +17,13 @@ import org.edu.melody.manager.PlanManager;
 import org.edu.melody.manager.UserManager;
 import org.edu.melody.model.Artist;
 import org.edu.melody.model.Customer;
-import org.edu.melody.model.Plan;
+import org.edu.melody.model.UserInfoDTO;
 import org.edu.melody.model.PlaylistDTO;
 import org.edu.melody.model.SetupDDDTO;
+import org.edu.melody.model.ModActivationStatusDTO;
 import org.edu.melody.model.TextMessageHandler;
-import org.edu.melody.model.User;
+import org.edu.melody.model.SessionInfoDTO;
+import org.edu.melody.model.PlanEnrollDTO;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,57 +42,44 @@ public class UserController extends Controller {
 	public static Map<Long, Long> uiotp = new HashMap<>();
 	public static final String saveDDAndSendOtp = "SSDO";
 
-	@RequestMapping(value = "login", method = RequestMethod.GET)
-	public Response login(@RequestParam("name") String userName, @RequestParam("pwd") String password,
-			@RequestParam(value = "type", defaultValue = "c", required = true) String userType) {
+	@RequestMapping(value = "login", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public Response login(@RequestBody UserInfoDTO userSessionInfo) {
 
 		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
-		
-		Class usrType;
-		if (userType.equals("c"))
-			usrType = Customer.class;
-		else
-			usrType = Artist.class;	
-		String sessionId = userManager.signIn(userName, password, usrType, resp);
-		resp.setMessage("SessionId: {"+sessionId+"}");
+				
+		String sessionId = userManager.signIn(userSessionInfo.getName(), userSessionInfo.getPwd(), userSessionInfo.getType(), resp);
+		if (resp.getErrorCode() == 0)
+			resp.setMessage("SessionId: {"+sessionId+"}");
 		return resp;
 
 	}
 
-	@RequestMapping(value = "signup", method = RequestMethod.GET)
-	public Response signUp(@RequestParam("name") String userName, @RequestParam("pwd") String password,
-			@RequestParam(value = "type", required = true) String userType,
-			@RequestParam(value = "email", required = true) String email,
-			@RequestParam(value = "cellnum", required = true) long cellNum) {
+	@RequestMapping(value = "signup", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public Response signUp(@RequestBody UserInfoDTO userSessionInfo) {
 		
-		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
-		Class usrType;
-		if (userType.equals("c"))
-			usrType = Customer.class;
-		else
-			usrType = Artist.class;
-		
-		userManager.signUp(userName, password, email, cellNum, usrType, resp);		
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();		
+		userManager.signUp(userSessionInfo.getName(), userSessionInfo.getPwd(), userSessionInfo.getEmail(), userSessionInfo.getCellNum(), userSessionInfo.getType(), resp);		
 		
 		if(resp.getErrorCode() == 0)
 			resp.setMessage("User Signup successfull.");
 		return resp;
 	}
 
-	@RequestMapping(value = "signout", method = RequestMethod.GET)
-	public Response signOut(@RequestParam("sessionId") String sessionId) {
+	
+	@RequestMapping(value = "signout", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public Response signOut(@RequestBody SessionInfoDTO sessionInfo) {
 		
 		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
-		userManager.signOutUser(sessionId);
+		userManager.signOutUser(sessionInfo.getSessionId());
 		resp.setMessage("User signed out successfully");
 		return resp;
 	}
 
-	@RequestMapping(value = "getuser", method = RequestMethod.GET)
-	public Response getUserInfo(@RequestParam("sessionId") String sessionId) {
+	@RequestMapping(value = "getuser", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public Response getUserInfo(@RequestBody SessionInfoDTO sessionInfo) {
 				
 		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
-		User usr = userManager.getUserInfo(sessionId);
+		User usr = userManager.getUserInfo(sessionInfo.getSessionId());
 		if (usr == null)
 			resp.setError(1, "User not logged In.");
 		else
@@ -112,30 +101,30 @@ public class UserController extends Controller {
 		return resp;
 	}
 
-	@RequestMapping(value = "enrollplan", method = RequestMethod.GET)
-	public Response enrollInPlan(@RequestParam("sessionId") String sessionId, @RequestParam("planid") int planId) {
+	@RequestMapping(value = "enrollplan", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public Response enrollInPlan(@RequestBody PlanEnrollDTO planEnroll) {
 				
 		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
 		
 		try {	
 			Customer cust;
 			int paymentId = -1;
-			User usr = userManager.getUserInfo(sessionId);
+			User usr = userManager.getUserInfo(planEnroll.getSessionId());
 			if (usr == null)
 				resp.setError(1,"User not logged In.");
 			else if( usr instanceof Customer) {
-				cust = (Customer) userManager.getUserInfo(sessionId);
+				cust = (Customer) userManager.getUserInfo(planEnroll.getSessionId());
 				
 				if (!planManager.checkEnrollment(cust, resp)) {
 					
-					boolean enrollmentRequiresPayment = planManager.requiresPayment(planId, resp);		
+					boolean enrollmentRequiresPayment = planManager.requiresPayment(planEnroll.getPlanId(), resp);		
 					
 					if(resp.getErrorCode() > 0)
 						return resp;
 					if (enrollmentRequiresPayment){
 						// Do Payment Processing
 					}					
-					planManager.planEnrollment(cust, planId, paymentId,resp);					
+					planManager.planEnrollment(cust, planEnroll.getPlanId(), paymentId, resp);					
 					cust.setPlanEnrollmentDate(new Date());				
 					if(resp.getErrorCode() == 0)
 						resp.setMessage("Enrolled user ["+cust.getUserName()+"] to plan.");
@@ -153,27 +142,38 @@ public class UserController extends Controller {
 		
 	}
 	
-	@RequestMapping(value = "changeacc", method = RequestMethod.GET)
-	public Response changeAccDetForArtist(@RequestParam("sessionId") String sessionId, 
-											@RequestParam("accno") long accNum,
-											@RequestParam("rounting") long routingNum,
-											@RequestParam("bankname") String bankName,
-											@RequestParam("bankaddr") String bankAddr) {
+	@RequestMapping(value = "changeacc", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public Response changeAccDetForArtist(@RequestBody SetupDDDTO dDDetails) {
 		
 		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
 		
-		User usr = userManager.getUserInfo(sessionId);
-		if (usr != null){
-			if (usr instanceof Artist){
-				userManager.updateAccDetails(accNum, routingNum, bankName, bankAddr, resp);
-			}
-			resp.setError(1,"Operation not supported .");
+		User usr = userManager.getUserInfo(dDDetails.getSessionId());
+		if (usr != null){			
+			userManager.updateAccDetails(usr, dDDetails.getAccountNo(), dDDetails.getRoutingNumber(), dDDetails.getBankName(), dDDetails.getBankAddress(), resp);			
 		}else
 			resp.setError(1,"User not logged In.");
 		
 		return resp;
 	}
 
+	
+	@RequestMapping(value = "modactivationstatus", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	public Response changeActivationStatus(@RequestBody ModActivationStatusDTO activationStatus) {
+		
+		Response resp = Response.builder().errorCode(0).errorStr("").message("").build();
+		
+		User usr = userManager.getUserInfo(activationStatus.getSessionId());
+		if (usr != null){			
+			userManager.changeActivationStatusForUser(usr, activationStatus.getUserName(), resp);		
+			if (resp.getErrorCode() == 0)
+				resp.setMessage("Activation status changed successfully for user ["+activationStatus.getUserName()+"]");
+		}else
+			resp.setError(1,"User not logged In.");
+		
+		
+		return resp;
+	}
+	
 	@RequestMapping(value = "makepay", method = RequestMethod.GET)
 	public String makePayment(@RequestParam("sessionId") String sessionId, @RequestParam("songid") int songid) {
 

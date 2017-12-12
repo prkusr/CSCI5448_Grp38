@@ -77,7 +77,7 @@ public class PlanDao extends AbstractDAO {
 			String query = "INSERT INTO UserPlanAssociation(userId, planId, enrollmentDate, paymentId) VALUES(" 
 							+ String.valueOf(usr.getUserId())
 							+ ", " + String.valueOf(plan.getId())
-							+ ", " + String.valueOf(new Date());
+							+ ", '" + String.valueOf(new Date())+"'";
 			
 			if (paymentId > 0)
 				query += ", " + String.valueOf(paymentId);

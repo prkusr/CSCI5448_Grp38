@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.edu.melody.model.*;
 import org.edu.melody.response.Response;
 
+import scala.annotation.meta.setter;
+
 public class UserDao extends AbstractDAO {
 
 	private static final Logger logger = LogManager.getLogger(UserDao.class);
@@ -75,18 +77,37 @@ public class UserDao extends AbstractDAO {
 			String query = "SELECT * FROM Users WHERE userId = " + String.valueOf(user.getUserId());
 			ResultSet rs = stmt.executeQuery(query);
 			if (rs.next()) {
-				user.setActive(true);
-				user.setEmail(rs.getString("email"));
-				user.setUserName(rs.getString("userName"));
-				user.setSessionCreatedTime(new Date());
-				user.setCellNumber(rs.getLong("cellno"));
-				logger.debug(rs.getString("userName") + " " + rs.getString("email"));
+				if ((rs.getInt("status") & 1) == 1)
+						resp.setError(1, "["+rs.getString("userName")+"] account is temporarily disabled.");
+				else {								
+					user.setEmail(rs.getString("email"));
+					user.setUserName(rs.getString("userName"));
+					user.setSessionCreatedTime(new Date());
+					user.setCellNumber(rs.getLong("cellno"));
+					user.setAdmin((rs.getInt("type") == 1)?true:false);
+				}			
 			}
 		} catch (Exception e) {
 			logger.error(e.getClass().getName() + ": " + e.getMessage()+"\n"+e.getStackTrace());
 			resp.setError(1, "Error in loading user profile: "+e.getClass().getName() + ": " + e.getMessage());
 		}
+	}
+	
+	public void flipActivationStatusForUser(String userName, Response resp){
+		try {
 
+			Statement stmt = null;
+			stmt = getConnection().createStatement();
+			String query = "UPDATE Users SET status = (CASE status WHEN 1 THEN 0 WHEN 0 THEN 1 END) WHERE userName = '"+userName+"'";
+			int rowUpdateCount = stmt.executeUpdate(query);
+			if (rowUpdateCount < 1) {
+				resp.setError(1, "Could find the username ["+userName+"] in DB.");
+			}
+		} catch (Exception e) {
+			String errStr = "Error in changing activation status for user: ["+userName+"] - "+e.getClass().getName() + ": " + e.getMessage();
+			logger.error(errStr+"\n"+e.getStackTrace());
+			resp.setError(1, errStr);
+		}
 	}
 
 	public Integer checkIfUserExist(String userName, String password, Response resp) {

@@ -48,6 +48,9 @@ public class PaymentManager {
 			}
 		}
 		return success;
-
+	}
+	
+	public void updateDirectDepostAcc(long userId, DirectDeposit dd){
+		payDao.updateDirectDeposit(userId, dd);
 	}
 }

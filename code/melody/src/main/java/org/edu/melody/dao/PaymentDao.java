@@ -35,6 +35,29 @@ public class PaymentDao extends AbstractDAO {
 		}
 	}
 
+	public void updateDirectDeposit(long userId, DirectDeposit dp) {
+		Statement stmt = null;
+		try {
+			stmt = getConnection().createStatement();			
+			String query = "UPDATE DirectDepositDetails SET "
+					+ " accountNo = '" + String.valueOf(dp.getAccountNo())+"', "
+					+ " routingNo = '" + String.valueOf(dp.getRoutingNumber())+"', "
+					+ " bankName = '" + String.valueOf(dp.getBankName())+"', "
+					+ " bankAddr = '" + String.valueOf(dp.getBankAddress())+"' "			
+					+ " WHERE userId = "+userId;
+
+			stmt.execute(query);
+		} catch (Exception e) {
+			logger.error("Error in updating direct deposit data for userId ["+userId+"]. ");
+		} finally {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
 	public void SetupCreditCard(User usr, CreditCard dp) {
 		try {
 			Statement stmt = null;
@@ -109,19 +132,5 @@ public class PaymentDao extends AbstractDAO {
 		}
 		return 0;
 	}
-
-	public void test() {
-		// TODO Auto-generated method stub
-		try {
-
-			// SetupDirectDeposit("123","456");
-			// SetupCreditCard("123", "456");
-			// CreditUser("123", 6.99);
-			// loadUserProfile(user);
-			logger.info("Test database debituser");
-
-		} catch (Exception e) {
-			logger.error("Unable to execute Db query", e);
-		}
-	}
+	
 }
