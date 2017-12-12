@@ -159,7 +159,7 @@ public class UserController extends Controller {
 		boolean sms = ad.send();
 
 		if (sms == true) {
-			uiotp.put((int) wds.getUserId(), ad.getRandn());
+			uiotp.put((int) wds.getUserId(), ad.getOtp());
 			return "A message has been sent to : " + rcnum + " :  " + uiotp;
 
 		}
