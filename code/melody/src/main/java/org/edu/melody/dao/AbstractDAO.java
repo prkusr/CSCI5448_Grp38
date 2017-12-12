@@ -25,4 +25,8 @@ public abstract class AbstractDAO {
 		}
 		return conn;
 	}
+	
+	public boolean isStringEmpty(String s){
+		return s == null || s.trim().isEmpty(); 
+	}
 }

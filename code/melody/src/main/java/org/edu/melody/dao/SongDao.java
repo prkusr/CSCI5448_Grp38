@@ -1,11 +1,9 @@
 package org.edu.melody.dao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -14,36 +12,90 @@ import org.edu.melody.model.Song;
 
 public class SongDao extends AbstractDAO {
 	private static final Logger logger = LogManager.getLogger(SongDao.class);
-	
 
-	List<Song> getRecentSongs() {
+	public List<Song> getRecentSongs() {
+		List<Song> recentSongs = new ArrayList<>();
+		Statement stmt = null;
 		try {
-			Statement stmt = null;
 			stmt = getConnection().createStatement();
-			String query = "SELECT * FROM SONGS WHERE songid = " + String.valueOf("1");
+			String query = "SELECT * FROM songs order by releasedate desc limit 200";
 			ResultSet rs = stmt.executeQuery(query);
-			while(rs.next())  
-				logger.info(rs.getInt(1)+"  "+rs.getString(2)+"  "+rs.getString(3));  
-				
-//			if (rs.next()) {
-//				user.setActive(true);
-//				user.setEmail(rs.getString("email"));
-//				user.setUserName(rs.getString("userName"));
-//				user.setSessionCreatedTime(new Date());
-//				logger.debug(rs.getString("userName") + " " + rs.getString("email"));
-//			}
+
+			while (rs.next()) {
+				recentSongs.add(getSongFromResultSet(rs));
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("Unable to get recent songs", e);
+		} finally {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				logger.error("Unable to close statement", e);
+			}
 		}
-		return new ArrayList<Song>();
+		return recentSongs;
 	}
 
+	public List<Song> searchSongs(String name, String genre, String artist, int limit) {
+		List<Song> songs = new ArrayList<>();
+		Statement stmt = null;
+
+		try {
+			stmt = getConnection().createStatement();
+			String query = "SELECT * FROM songs";
+			// name ILIKE '%" + name + "%' order by releasedate";
+			StringBuilder q = new StringBuilder(query);
+			boolean isWhere = false;
+
+			if (!isStringEmpty(name)) {
+				q.append(" where ").append("name ILIKE '%").append(name).append("%'");
+				isWhere = true;
+			}
+			if (!isStringEmpty(genre))
+				q.append(isWhere ? " and " : " where ").append("genre ILIKE '%").append(genre).append("%'");
+			if (!isStringEmpty(artist))
+				q.append(isWhere ? " and " : " where ").append("artistname = '").append(artist).append("'");
+			q.append(" order by releasedate");
+			if (limit > 0)
+				q.append(" limit ").append(limit);
+
+			query = q.toString();
+			ResultSet rs = stmt.executeQuery(query);
+
+			while (rs.next()) {
+				songs.add(getSongFromResultSet(rs));
+			}
+		} catch (Exception e) {
+			logger.error("Unable to get recent songs", e);
+		} finally {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				logger.error("Unable to close statement", e);
+			}
+		}
+		return songs;
+	}
+
+	public static Song getSongFromResultSet(ResultSet rs) {
+		try {
+			return Song.builder().artistId(rs.getInt("artistid")).cost(rs.getDouble("cost"))
+					.format(rs.getString("format")).genre(rs.getString("genre")).id(rs.getInt("songid"))
+					.link(rs.getString("songpath")).name(rs.getString("name"))
+					// .releaseDate(
+					// LocalDateTime.parse(rs.getString("releasedate"),
+					// DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+					.build();
+		} catch (SQLException e) {
+			logger.debug("Error while buiding Song from database", e);
+		}
+		return null;
+	}
 
 	public void test() {
 		// TODO Auto-generated method stub
-try {
+		try {
 			getRecentSongs();
-			//loadUserProfile(user);
 			logger.info("Test DaTABASE song");
 
 		} catch (Exception e) {
