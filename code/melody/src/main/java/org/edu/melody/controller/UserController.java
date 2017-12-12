@@ -1,7 +1,9 @@
 package org.edu.melody.controller;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,6 +14,7 @@ import org.edu.melody.model.Artist;
 import org.edu.melody.model.Customer;
 import org.edu.melody.model.Plan;
 import org.edu.melody.model.PlaylistDTO;
+import org.edu.melody.model.TextMessageHandler;
 import org.edu.melody.model.User;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,9 +27,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController extends Controller {
 
 	static final Logger logger = LogManager.getLogger(UserController.class);
-
 	UserManager userManager = new UserManager();
 	PlanManager planManager = new PlanManager();
+	public static Map<Integer, Integer> uiotp = new HashMap<>();
 
 	@RequestMapping(value = "login", method = RequestMethod.GET)
 	public String login(@RequestParam("name") String userName, @RequestParam("pwd") String password,
@@ -143,4 +146,26 @@ public class UserController extends Controller {
 		}
 		return "{ 'Error' : 'User not logged in'}";
 	}
+
+	@RequestMapping(value = "sendOTP", method = RequestMethod.GET)
+	public String sentOTP(@RequestParam("sessionId") String sessionId, @RequestParam("number") long rcnum) {
+
+		User wds = userManager.getUserInfo(sessionId);
+		if (wds == null) {
+			return "User not logged in";
+		}
+		TextMessageHandler ad = new TextMessageHandler();
+		ad.setReceiverNumber(rcnum);
+		boolean sms = ad.send();
+
+		if (sms == true) {
+			uiotp.put((int) wds.getUserId(), ad.getRandn());
+			return "A message has been sent to : " + rcnum + " :  " + uiotp;
+
+		}
+		return "Error in sending SMS";
+		// return "You've been charged $"+ad.debitSong(wds,songid);
+		// return "Attempting: "+wds.getUserId();
+	}
+
 }

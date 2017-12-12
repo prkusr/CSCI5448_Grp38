@@ -6,6 +6,7 @@ import java.util.Random;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.edu.melody.dao.PaymentDao;
 import org.edu.melody.model.Customer;
 import org.edu.melody.model.User;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,8 +31,8 @@ public class TestService {
 		return testUsers;
 	}
 	
-	@RequestMapping(value = "user", method = RequestMethod.POST)
-	public List<User> checkIsUserExist() {
+	@RequestMapping(value = "testpay", method = RequestMethod.POST)
+	public List<User> checkDBPAY() {
 
 		List<User> testUsers = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
@@ -40,4 +41,16 @@ public class TestService {
 		}
 		return testUsers;
 	}
+	
+	@RequestMapping(value="testdb")
+	public void checkIsUserExist() {
+
+		PaymentDao ad=new PaymentDao();
+		ad.test();
+		
+		
+	}
+	
+	
+	
 }
